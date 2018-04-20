@@ -2,9 +2,11 @@
 
 ## CSV Reader on [Hydrosphere Mist 1.0.0-RC14](https://hydrosphere.io) Spark 2.2.0
 
+```sh
 make run-mist
 make test package
 make deploy-csv
+```
 
 Mist UI localhost:2004/ui
 
