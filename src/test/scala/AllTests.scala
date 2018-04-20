@@ -96,8 +96,8 @@ class AllTests extends FunSuite with SharedSparkContext {
     assert(convertedDataFrame.columns.length == 3)
     assert(convertedDataFrame.collect().head.getAs[Int]("total_years") == 26)
     assert(convertedDataFrame.collect()(1).getAs[Int]("total_years") == 0)
-    assert(convertedDataFrame.collect()(0).getAs[java.sql.Date]("d_o_b").getTime > 791067500000L
-      && convertedDataFrame.collect()(0).getAs[java.sql.Date]("d_o_b").getTime < 791067800000L)
+    assert(convertedDataFrame.collect()(0).getAs[java.sql.Date]("d_o_b").getTime > 791067400000L
+      && convertedDataFrame.collect()(0).getAs[java.sql.Date]("d_o_b").getTime < 791079400000L)
   }
 
 
@@ -119,7 +119,7 @@ class AllTests extends FunSuite with SharedSparkContext {
     val ageProfile = profiling.find((p: Map[String, Any]) => p("Column").asInstanceOf[String] matches "age")
     assert(ageProfile.get("Column").asInstanceOf[String] matches "age")
     assert(ageProfile.get("Unique_values").asInstanceOf[Long] == 2)
-    val ageValues = ageProfile.get("Values").asInstanceOf[Set[(Any, Long)]]
+    val ageValues = ageProfile.get("Values").asInstanceOf[Seq[(Any, Long)]]
     assert(ageValues.head._2 == 2)
     assert(ageValues.head._1.toString.toInt == 26)
   }

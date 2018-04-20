@@ -1,5 +1,5 @@
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
 
 
 object Functions {
@@ -8,16 +8,16 @@ object Functions {
     import spark.implicits._
     val testDataSet = Seq(CsvData("name", "age", "birthday", "gender"),
       CsvData("  ", "xyz", "26-01-1995", "female"),
-      CsvData("  ", "xyz", "26-01-1995", "female"),
+      CsvData("  ", "xyz", "", "female"),
       CsvData("Joe", "26", "26-01-1995", "male"),
-      CsvData("Homer", "26", "26-01-1995", ""),
-      CsvData("Jimbo", "26", "26-01-1995", null),
+      CsvData("Homer", "26", "26-01-1995", "male"),
+      CsvData("Jimbo", "26", "26-01-1995", "male"),
       CsvData(null, " ", "26-01-1985", "male"),
       CsvData(null, "   ", "26-01-1997", "male"),
       CsvData("BoJack", "30", "26-01-1995", "male"),
-      CsvData("Julia", "15", "26-01-1985", "female")).toDS()
+      CsvData("Julia", "15", "26-01-1985", "female")).toDF()
     testDataSet.show()
-    testDataSet.write.csv(path)
+    testDataSet.repartition(1).write.mode(saveMode = SaveMode.Overwrite).format("csv").save(path)
   }
 
   def readCsvToDf(spark: SparkSession, path: String): Option[DataFrame] = {
@@ -95,16 +95,28 @@ object Functions {
           .collect()
           .head
           .getAs[Long]("count_distinct"),
-        "Values" -> dataFrame.groupBy(col(column))
+        "Values" -> dataFrame
+          .withColumn(column, col(column).cast("string"))
+          .groupBy(col(column))
           .agg(count(col(column)).alias("count"))
           .collect()
           .toSeq.map(row => {
           (row.getAs[String](s"${column}"),
             row.getAs[Long]("count"))
-        }).toSet
+        })
       )
     }
     }.toList)
+  }
+
+  def inspectDataFrame(dataFrame: DataFrame, logger : mist.api.MLogger): Option[DataFrame] = {
+    logger.info("---count---")
+    logger.info(dataFrame.count().toString)
+
+    logger.info("---profiling---")
+    profilingInformation(dataFrame).get.foreach(x => logger.info(x.toString()))
+
+    Some(dataFrame)
   }
 
 }

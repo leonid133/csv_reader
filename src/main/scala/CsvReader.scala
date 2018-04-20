@@ -18,13 +18,9 @@ object CsvReader extends MistFn[Result] {
                                extras: MistExtras, spark: SparkSession) => {
         import extras._
 
-
         logger.info(s"read")
 
-
         createCsv(spark, pathToCsv)
-
-        val df = readCsvToDf(spark, pathToCsv)
 
         val parsedMutators: List[Map[String, String]] = mutators.map(x => {
           x.split(",").map(y => y.filterNot(c => c == '{' || c == '}' || c == '"').split(":") match {
@@ -34,21 +30,21 @@ object CsvReader extends MistFn[Result] {
 
         logger.info(s"transform")
 
-        val outputInformation = for {
+        val outputInformation: List[Map[String, Any]] = (for {
           df <- readCsvToDf(spark, pathToCsv)
           filteredSpaces <- filterEmptyAndSpaces(df)
           filteredNulls <- filterNulls(filteredSpaces)
           converted <- convertDataType(parsedMutators, filteredNulls)
           profiled <- profilingInformation(converted)
-        } yield profiled
+        } yield profiled).get
 
         logger.info(s"output")
-        outputInformation.get.foreach(x => logger.info(x.toString()))
+        outputInformation.foreach(x => logger.info(x.toString()))
 
-        Result(outputInformation.get.map(column => {
-          new Profile(column("Column").toString,
+        Result(outputInformation.map(column => {
+          Profile(column("Column").toString,
             column("Unique_values").asInstanceOf[Long],
-            column("Values").asInstanceOf[Seq[(String, Long)]].map(x => new Values(x._1, x._2)))
+            column("Values").asInstanceOf[Seq[(String, Long)]].map(x => Values(x._1, x._2)))
         }))
 
       })
