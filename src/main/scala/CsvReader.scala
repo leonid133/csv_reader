@@ -20,8 +20,6 @@ object CsvReader extends MistFn[Result] {
 
         logger.info(s"read")
 
-        createCsv(spark, pathToCsv)
-
         val parsedMutators: List[Map[String, String]] = mutators.map(x => {
           x.split(",").map(y => y.filterNot(c => c == '{' || c == '}' || c == '"').split(":") match {
             case Array(k, v) => k.trim -> v.trim

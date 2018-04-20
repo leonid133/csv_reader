@@ -10,6 +10,28 @@ class AllTests extends FunSuite with SharedSparkContext {
 
   override implicit def reuseContextIfPossible: Boolean = true
 
+//  test("Test create") {
+//    val spark: SparkSession = SparkSession
+//      .builder()
+//      .appName(sc.appName)
+//      .config(sc.getConf)
+//      .getOrCreate()
+//
+//    val csvDataSeq = Seq(Array("name", "age", "birthday", "gender"),
+//              Array("  ", "xyz", "26-01-1995", "female"),
+//              Array("  ", "xyz", "", "female"),
+//              Array("Joe", "26", "26-01-1995", "male"),
+//              Array("Homer", "26", "26-01-1995", "male"),
+//              Array("Jimbo", "26", "26-01-1995", "male"),
+//              Array(null, " ", "26-01-1985", "male"),
+//              Array(null, "   ", "26-01-1997", "male"),
+//              Array("BoJack", "30", "26-01-1995", "male"),
+//              Array("Julia", "15", "26-01-1985", "female"))
+//
+//    createCsv(spark, "tmp/1.csv", csvDataSeq)
+//
+//  }
+
   test("Test Read a csv file from local filesystem") {
     val spark: SparkSession = SparkSession
       .builder()

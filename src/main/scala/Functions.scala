@@ -1,23 +1,21 @@
+import javax.sql.RowSet
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
+import org.apache.spark.sql.types._
+import org.apache.spark.sql.{DataFrame, Row, SaveMode, SparkSession}
 
 
 object Functions {
 
-  def createCsv(spark: SparkSession, path: String) = {
+  def createCsv(spark: SparkSession, path: String, csvDataSeq: Seq[Array[String]]) = {
     import spark.implicits._
-    val testDataSet = Seq(CsvData("name", "age", "birthday", "gender"),
-      CsvData("  ", "xyz", "26-01-1995", "female"),
-      CsvData("  ", "xyz", "", "female"),
-      CsvData("Joe", "26", "26-01-1995", "male"),
-      CsvData("Homer", "26", "26-01-1995", "male"),
-      CsvData("Jimbo", "26", "26-01-1995", "male"),
-      CsvData(null, " ", "26-01-1985", "male"),
-      CsvData(null, "   ", "26-01-1997", "male"),
-      CsvData("BoJack", "30", "26-01-1995", "male"),
-      CsvData("Julia", "15", "26-01-1985", "female")).toDF()
-    testDataSet.show()
-    testDataSet.repartition(1).write.mode(saveMode = SaveMode.Overwrite).format("csv").save(path)
+    val rows: Seq[Row] = csvDataSeq.map(x => Row(x:_*))
+    val schema = StructType(csvDataSeq.head.map(x=> {
+      StructField(x.toString, StringType, true)
+    }))
+    val dataFrame: DataFrame = spark.createDataFrame(spark.sparkContext.parallelize(rows), schema)
+    dataFrame.show()
+    dataFrame.printSchema()
+    dataFrame.repartition(1).write.mode(saveMode = SaveMode.Overwrite).format("csv").save(path)
   }
 
   def readCsvToDf(spark: SparkSession, path: String): Option[DataFrame] = {
