@@ -2,6 +2,10 @@
 
 ## CSV Reader on [Hydrosphere Mist 1.0.0-RC14](https://hydrosphere.io) Spark 2.2.0
 
+[Install docker](https://docs.docker.com/install/)
+
+[Install sbt](https://www.scala-sbt.org/1.0/docs/Setup.html)
+
 ```sh
 make run-mist
 make test package
