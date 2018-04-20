@@ -1,0 +1,10 @@
+language: scala
+scala:
+- 2.11.8
+
+before_install:
+- sudo apt-get update -qq
+
+script:
+- jdk_switcher use oraclejdk8
+- make test
